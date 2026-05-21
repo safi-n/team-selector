@@ -3,14 +3,16 @@
 import { useState, useEffect, useCallback } from "react";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ✏️  EDIT THESE 15 NAMES before you deploy
+// ✏️  EDIT THESE 21 NAMES before you deploy
 // ─────────────────────────────────────────────────────────────────────────────
 const PLAYERS = [
   "Safi",      "Mitch",     "Julie Ann",
-  "Mo",      "Nicolas",   "Noah",
-  "Innocent",     "Jojo",   "Hervé",
-  "Lily M",      "Hirwa",     "Nshuti",
-  "Timon",    "Ian",    "Mr Dot",
+  "Mo",        "Nicolas",   "Noah",
+  "Innocent",  "Jojo",      "Hervé",
+  "Lily M",    "Hirwa",     "Nshuti",
+  "Timon",     "Ian",       "Mr Dot",
+  "Player 16", "Player 17", "Player 18",
+  "Player 19", "Player 20", "Player 21",
 ];
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -18,6 +20,7 @@ const TEAMS = {
   green:  { name: "Green Team",  hex: "#16a34a", light: "#f0fdf4", dark: "#15803d", emoji: "🟢", glow: "0 0 0 2px #16a34a" },
   orange: { name: "Orange Team", hex: "#ea580c", light: "#fff7ed", dark: "#c2410c", emoji: "🟠", glow: "0 0 0 2px #ea580c" },
   black:  { name: "Black Team",  hex: "#78716c", light: "#f5f5f4", dark: "#44403c", emoji: "⚫", glow: "0 0 0 2px #78716c" },
+  white:  { name: "White Team",  hex: "#64748b", light: "#f8fafc", dark: "#0f172a", emoji: "⚪", glow: "0 0 0 2px #64748b" },
 };
 
 const MY_KEY = "footy_player_v1";
@@ -92,7 +95,7 @@ export default function Page() {
       localStorage.setItem(MY_KEY, name);
       setTab("teams");
       setStatus("idle");
-      flash(`🎉 You joined ${TEAMS[json.team].name}!`, "success");
+      flash(json.team === "wildcard" ? "⚡ You're the Change Maker!" : `🎉 You joined ${TEAMS[json.team].name}!`, "success");
     } catch {
       flash("Network error — try again", "error");
       setStatus("idle");
@@ -123,11 +126,13 @@ export default function Page() {
   }
 
   // ── Derived ─────────────────────────────────────────────────────────────────
-  const assignments = data?.assignments ?? {};
-  const counts      = data?.counts      ?? { green: 0, orange: 0, black: 0 };
-  const totalPicked = Object.keys(assignments).length;
-  const myTeam      = myName ? TEAMS[assignments[myName]] : null;
-  const allFull     = totalPicked >= 15;
+  const assignments     = data?.assignments ?? {};
+  const counts          = data?.counts      ?? { green: 0, orange: 0, black: 0, white: 0 };
+  const totalPicked     = Object.keys(assignments).length;
+  const changeMakerName = Object.keys(assignments).find(p => assignments[p] === "wildcard") ?? null;
+  const isChangeMaker   = !!myName && assignments[myName] === "wildcard";
+  const myTeam          = myName && !isChangeMaker ? TEAMS[assignments[myName]] : null;
+  const allFull         = totalPicked >= 21;
 
   // ── Loading ──────────────────────────────────────────────────────────────────
   if (status === "loading") return (
@@ -163,9 +168,9 @@ export default function Page() {
           <span style={s.titleText}>⚽ Find your team</span>
         </div>
 
-        {/* Tri-segment progress bar */}
+        {/* Progress bar — 4 team segments */}
         <div style={s.barWrap}>
-          {["green", "orange", "black"].map(t => (
+          {["green", "orange", "black", "white"].map(t => (
             <div key={t} style={{
               ...s.barSeg,
               background: TEAMS[t].hex,
@@ -173,22 +178,22 @@ export default function Page() {
               opacity: counts[t] ? 1 : 0,
             }} />
           ))}
-          <div style={{ ...s.barSeg, background: "#e5e7eb", flex: Math.max(15 - totalPicked, 0) }} />
+          <div style={{ ...s.barSeg, background: "#e5e7eb", flex: Math.max(21 - totalPicked, 0) }} />
         </div>
 
         {/* Team pills + player count */}
         <div style={s.pillsRow}>
           <div style={s.teamCountsRow}>
-            {["green", "orange", "black"].map(t => (
+            {["green", "orange", "black", "white"].map(t => (
               <span key={t} style={{ ...s.teamPill, background: TEAMS[t].hex }}>
                 {TEAMS[t].emoji} {counts[t]}/5
               </span>
             ))}
           </div>
-          <span style={s.sub}>{totalPicked} / 15 players</span>
+          <span style={s.sub}>{totalPicked} / 21 players</span>
         </div>
 
-        {allFull && <div style={{ ...s.fullBadge, margin: "0 16px 10px" }}>🏆 All teams set — let's play!</div>}
+        {allFull && <div style={{ ...s.fullBadge, margin: "0 16px 10px" }}>🏆 All 4 teams set — let's play!</div>}
 
         {myName === "Safi" && (
           <button
@@ -231,7 +236,8 @@ export default function Page() {
               const team       = assignments[name];
               const taken      = !!team;
               const isMe       = name === myName;
-              const ti         = team ? TEAMS[team] : null;
+              const isWildcard = team === "wildcard";
+              const ti         = taken && !isWildcard ? TEAMS[team] : null;
               const selectable = !taken && !myName && status === "idle";
 
               return (
@@ -242,21 +248,26 @@ export default function Page() {
                   className={`name-card${shake === name ? " shake" : ""}`}
                   style={{
                     ...s.nameCard,
-                    ...(taken ? {
-                      background:   ti.light,
-                      borderColor:  ti.hex,
-                      color:        ti.dark,
-                      cursor:       "default",
+                    ...(taken && !isWildcard ? {
+                      background:  ti.light,
+                      borderColor: ti.hex,
+                      color:       ti.dark,
+                      cursor:      "default",
                     } : {}),
-                    ...(isMe ? { boxShadow: ti.glow } : {}),
+                    ...(taken && isWildcard ? {
+                      background:  "#faf5ff",
+                      borderColor: "#7c3aed",
+                      cursor:      "default",
+                    } : {}),
+                    ...(isMe && !isWildcard ? { boxShadow: ti.glow } : {}),
+                    ...(isMe && isWildcard  ? { boxShadow: "0 0 0 2px #7c3aed" } : {}),
                     ...(selectable ? {} : { cursor: "default" }),
                   }}>
                   {isMe && <span style={s.youTag}>YOU</span>}
-                  <span style={s.playerName}>{name}</span>
-                  {taken
-                    ? <span style={{ ...s.smallText, color: ti.dark }}>{ti.emoji} {ti.name.replace(" Team","")}</span>
-                    : <span style={s.tapHint}>tap to join</span>
-                  }
+                  <span style={{ ...s.playerName, ...(isWildcard ? { color: "#6d28d9" } : {}) }}>{name}</span>
+                  {taken && !isWildcard && <span style={{ ...s.smallText, color: ti.dark }}>{ti.emoji} {ti.name.replace(" Team","")}</span>}
+                  {taken && isWildcard   && <span style={{ ...s.smallText, color: "#7c3aed" }}>⚡ Change Maker</span>}
+                  {!taken               && <span style={s.tapHint}>tap to join</span>}
                 </button>
               );
             })}
@@ -282,8 +293,18 @@ export default function Page() {
             </div>
           )}
 
-          {/* All 3 team cards */}
-          {["green", "orange", "black"].map(key => {
+          {/* Change Maker hero — shown to the player who randomly got the wildcard */}
+          {isChangeMaker && (
+            <div className="hero-card" style={{ ...s.heroCard, background: "#faf5ff", borderColor: "#7c3aed" }}>
+              <div style={s.heroEyebrow}>YOU ARE THE</div>
+              <div style={{ ...s.heroName, color: "#6d28d9" }}>CHANGE MAKER</div>
+              <div style={{ fontSize: 20, margin: "6px 0", opacity: 0.4 }}>⚡⚡⚡⚡</div>
+              <div style={{ ...s.heroSub, color: "#6d28d9" }}>Play for any team that needs you! 🔥</div>
+            </div>
+          )}
+
+          {/* All 4 team cards */}
+          {["green", "orange", "black", "white"].map(key => {
             const t       = TEAMS[key];
             const members = PLAYERS.filter(p => assignments[p] === key);
             const spots   = 5 - members.length;
@@ -306,10 +327,20 @@ export default function Page() {
                   ))}
                   {[...Array(spots)].map((_, i) => (
                     <div key={i} style={{ ...s.memberRow, opacity: 0.3 }}>
-                      <span style={{ ...s.dot, background: "#57534e" }} />
-                      <span style={{ fontStyle: "italic", color: "#a8a29e", fontSize: 13 }}>Waiting for player…</span>
+                      <span style={{ ...s.dot, background: "#d1d5db" }} />
+                      <span style={{ fontStyle: "italic", color: "#9ca3af", fontSize: 13 }}>Waiting for player…</span>
                     </div>
                   ))}
+
+                  {/* Change Maker always appears as 6th player in every team */}
+                  <div style={{ ...s.memberRow, borderTop: "1px dashed #e5e7eb", marginTop: 4, paddingTop: 10 }}>
+                    <span style={{ fontSize: 13 }}>⚡</span>
+                    <span style={{ fontSize: 13, color: changeMakerName ? "#6d28d9" : "#9ca3af", fontWeight: changeMakerName ? 700 : 400, fontStyle: changeMakerName ? "normal" : "italic" }}>
+                      {changeMakerName
+                        ? `${changeMakerName}${changeMakerName === myName ? " 👈 you" : ""}`
+                        : "Change Maker (not yet picked)"}
+                    </span>
+                  </div>
                 </div>
               </div>
             );

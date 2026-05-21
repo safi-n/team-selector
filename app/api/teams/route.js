@@ -6,14 +6,14 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
-const TEAMS = ["green", "orange", "black"];
+const TEAMS = ["green", "orange", "black", "white"];
 
 function buildResponse(rows) {
   const assignments = {};
-  const counts = { green: 0, orange: 0, black: 0 };
+  const counts = { green: 0, orange: 0, black: 0, white: 0 };
   for (const { name, team } of rows) {
     assignments[name] = team;
-    counts[team] = (counts[team] ?? 0) + 1;
+    if (team !== "wildcard") counts[team] = (counts[team] ?? 0) + 1;
   }
   return { assignments, counts };
 }
@@ -47,19 +47,25 @@ export async function POST(request) {
     return NextResponse.json({ ok: true, data: buildResponse(rows), alreadyAssigned: true });
   }
 
-  // Find teams with open slots
-  const counts = { green: 0, orange: 0, black: 0 };
-  for (const { team } of rows) counts[team] = (counts[team] ?? 0) + 1;
-  const available = TEAMS.filter(t => (counts[t] ?? 0) < 5);
+  // Build available slots: 4 teams × 5 + 1 wildcard = 21 total
+  const counts = { green: 0, orange: 0, black: 0, white: 0 };
+  let wildcardTaken = false;
+  for (const { team } of rows) {
+    if (team === "wildcard") wildcardTaken = true;
+    else counts[team] = (counts[team] ?? 0) + 1;
+  }
+  const available = [
+    ...TEAMS.filter(t => (counts[t] ?? 0) < 5),
+    ...(!wildcardTaken ? ["wildcard"] : []),
+  ];
   if (available.length === 0) {
-    return NextResponse.json({ error: "All teams are full — 15/15 players assigned." }, { status: 409 });
+    return NextResponse.json({ error: "All slots full — 21/21 players assigned." }, { status: 409 });
   }
 
   const team = available[Math.floor(Math.random() * available.length)];
 
   const { error: insertError } = await supabase.from("assignments").insert({ name, team });
   if (insertError) {
-    // Race condition: another player grabbed the same name
     if (insertError.code === "23505") {
       const { data: fresh } = await supabase.from("assignments").select("*");
       return NextResponse.json({ ok: true, data: buildResponse(fresh ?? []), alreadyAssigned: true });
