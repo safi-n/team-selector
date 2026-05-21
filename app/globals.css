@@ -1,0 +1,59 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #0f0e0d;
+  font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+}
+
+button {
+  outline: none;
+  -webkit-appearance: none;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-7px) rotate(-2deg); }
+  40%       { transform: translateX(7px)  rotate(2deg); }
+  60%       { transform: translateX(-4px); }
+  80%       { transform: translateX(4px); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.spin  { animation: spin  1s linear infinite; display: inline-block; }
+.shake { animation: shake 0.45s ease; }
+
+.name-card:not(:disabled):active {
+  opacity: 0.7;
+  transform: scale(0.95);
+}
+
+.name-card:not(:disabled):hover {
+  border-color: #57534e !important;
+  background: #292524 !important;
+}
+
+.hero-card {
+  animation: slideUp 0.55s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+}
+
+.toast {
+  animation: fadeIn 0.2s ease;
+}
