@@ -6,8 +6,8 @@
 html, body {
   margin: 0;
   padding: 0;
-  background: #0f0e0d;
-  font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  background: #ffffff;
+  font-family: 'Inter', system-ui, sans-serif;
 }
 
 button {
@@ -46,8 +46,9 @@ button {
 }
 
 .name-card:not(:disabled):hover {
-  border-color: #57534e !important;
-  background: #292524 !important;
+  border-color: #9ca3af !important;
+  background: #f9fafb !important;
+  transform: translateY(-1px);
 }
 
 .hero-card {

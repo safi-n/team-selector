@@ -15,9 +15,9 @@ const PLAYERS = [
 // ─────────────────────────────────────────────────────────────────────────────
 
 const TEAMS = {
-  green:  { name: "Green Team",  hex: "#16a34a", light: "#dcfce7", dark: "#14532d", emoji: "🟢", glow: "0 0 0 3px #16a34a, 0 0 24px rgba(22,163,74,.45)"  },
-  orange: { name: "Orange Team", hex: "#ea580c", light: "#fff0e6", dark: "#7c2d12", emoji: "🟠", glow: "0 0 0 3px #ea580c, 0 0 24px rgba(234,88,12,.45)"  },
-  black:  { name: "Black Team",  hex: "#44403c", light: "#e7e5e4", dark: "#1c1917", emoji: "⚫", glow: "0 0 0 3px #44403c, 0 0 24px rgba(68,64,60,.6)"    },
+  green:  { name: "Green Team",  hex: "#16a34a", light: "#f0fdf4", dark: "#15803d", emoji: "🟢", glow: "0 0 0 2px #16a34a" },
+  orange: { name: "Orange Team", hex: "#ea580c", light: "#fff7ed", dark: "#c2410c", emoji: "🟠", glow: "0 0 0 2px #ea580c" },
+  black:  { name: "Black Team",  hex: "#78716c", light: "#f5f5f4", dark: "#44403c", emoji: "⚫", glow: "0 0 0 2px #78716c" },
 };
 
 const MY_KEY = "footy_player_v1";
@@ -157,10 +157,11 @@ export default function Page() {
       )}
 
       {/* ── Header ── */}
-      <header style={s.header}>
-        <span style={s.pill}>⚽ SQUAD UP</span>
-        <h1 style={s.h1}>Team<br />Selector</h1>
-        <p style={s.sub}>{totalPicked} / 15 players assigned</p>
+      <header>
+        {/* Black title bar */}
+        <div style={s.titleBar}>
+          <span style={s.titleText}>⚽ Find your team</span>
+        </div>
 
         {/* Tri-segment progress bar */}
         <div style={s.barWrap}>
@@ -172,19 +173,22 @@ export default function Page() {
               opacity: counts[t] ? 1 : 0,
             }} />
           ))}
-          <div style={{ ...s.barSeg, background: "#292524", flex: Math.max(15 - totalPicked, 0) }} />
+          <div style={{ ...s.barSeg, background: "#e5e7eb", flex: Math.max(15 - totalPicked, 0) }} />
         </div>
 
-        {/* Team counts row */}
-        <div style={s.teamCountsRow}>
-          {["green", "orange", "black"].map(t => (
-            <span key={t} style={{ ...s.teamPill, background: TEAMS[t].hex }}>
-              {TEAMS[t].emoji} {counts[t]}/5
-            </span>
-          ))}
+        {/* Team pills + player count */}
+        <div style={s.pillsRow}>
+          <div style={s.teamCountsRow}>
+            {["green", "orange", "black"].map(t => (
+              <span key={t} style={{ ...s.teamPill, background: TEAMS[t].hex }}>
+                {TEAMS[t].emoji} {counts[t]}/5
+              </span>
+            ))}
+          </div>
+          <span style={s.sub}>{totalPicked} / 15 players</span>
         </div>
 
-        {allFull && <div style={s.fullBadge}>🏆 All teams set — let's play!</div>}
+        {allFull && <div style={{ ...s.fullBadge, margin: "0 16px 10px" }}>🏆 All teams set — let's play!</div>}
 
         {myName === "Safi" && (
           <button
@@ -198,7 +202,7 @@ export default function Page() {
 
       {/* ── Tabs ── */}
       <nav style={s.tabBar}>
-        {[["players", "👥 Players"], ["teams", "🏆 Teams"]].map(([id, label]) => (
+        {[["players", "Players"], ["teams", "Teams"]].map(([id, label]) => (
           <button key={id}
             style={{ ...s.tabBtn, ...(tab === id ? s.tabActive : {}) }}
             onClick={() => setTab(id)}>
@@ -268,12 +272,13 @@ export default function Page() {
           {myTeam && (
             <div className="hero-card" style={{
               ...s.heroCard,
-              background: `linear-gradient(140deg, ${myTeam.dark} 0%, ${myTeam.hex} 100%)`,
+              background: myTeam.light,
+              borderColor: myTeam.hex,
             }}>
               <div style={s.heroEyebrow}>YOU&apos;RE ON</div>
-              <div style={s.heroName}>{myTeam.name.toUpperCase()}</div>
-              <div style={{ fontSize: 40, margin: "6px 0" }}>{"⚽".repeat(5)}</div>
-              <div style={s.heroSub}>Let&apos;s go, {myName.split(" ")[0]}! 🔥</div>
+              <div style={{ ...s.heroName, color: myTeam.dark }}>{myTeam.name.toUpperCase()}</div>
+              <div style={{ fontSize: 20, margin: "6px 0", opacity: 0.4 }}>{"⚽ ".repeat(5).trim()}</div>
+              <div style={{ ...s.heroSub, color: myTeam.dark }}>Let&apos;s go, {myName.split(" ")[0]}! 🔥</div>
             </div>
           )}
 
@@ -292,9 +297,9 @@ export default function Page() {
                 </div>
                 <div style={s.memberList}>
                   {members.map(p => (
-                    <div key={p} style={{ ...s.memberRow, ...(p === myName ? { background: t.light } : {}) }}>
+                    <div key={p} style={{ ...s.memberRow, ...(p === myName ? { background: t.light, borderRadius: 8 } : {}) }}>
                       <span style={{ ...s.dot, background: t.hex }} />
-                      <span style={{ color: p === myName ? t.dark : "#fafaf9", fontWeight: p === myName ? 800 : 600 }}>
+                      <span style={{ color: p === myName ? t.dark : "#111827", fontWeight: p === myName ? 800 : 500, fontSize: 14 }}>
                         {p}{p === myName ? " 👈 you" : ""}
                       </span>
                     </div>
@@ -319,50 +324,50 @@ export default function Page() {
 
 // ── Styles ────────────────────────────────────────────────────────────────────
 const s = {
-  page:   { minHeight: "100vh", background: "#0f0e0d", color: "#fafaf9", fontFamily: "'Barlow Condensed', 'Arial Narrow', sans-serif" },
+  page:   { minHeight: "100vh", background: "#ffffff", color: "#111827", fontFamily: "'Inter', system-ui, sans-serif" },
   center: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh" },
 
-  toast:    { position: "fixed", top: 16, left: "50%", transform: "translateX(-50%)", background: "#292524", color: "#fafaf9", padding: "10px 20px", borderRadius: 99, fontSize: 14, fontWeight: 700, zIndex: 999, whiteSpace: "nowrap", boxShadow: "0 4px 20px rgba(0,0,0,.5)", maxWidth: "90vw" },
-  toastErr: { background: "#7f1d1d", color: "#fca5a5" },
-  toastOk:  { background: "#14532d", color: "#86efac" },
+  toast:    { position: "fixed", top: 16, left: "50%", transform: "translateX(-50%)", background: "#1f2937", color: "#f9fafb", padding: "10px 22px", borderRadius: 99, fontSize: 13, fontWeight: 600, zIndex: 999, whiteSpace: "nowrap", boxShadow: "0 4px 24px rgba(0,0,0,.2)", maxWidth: "90vw" },
+  toastErr: { background: "#7f1d1d", color: "#fecaca" },
+  toastOk:  { background: "#14532d", color: "#bbf7d0" },
 
-  header:       { background: "linear-gradient(160deg,#1c1917 0%,#292524 100%)", padding: "28px 20px 18px", borderBottom: "2px solid #292524" },
-  pill:         { display: "inline-block", background: "#ea580c", color: "#fff", fontSize: 11, fontWeight: 800, letterSpacing: 2, padding: "3px 10px", borderRadius: 4, marginBottom: 10 },
-  h1:           { fontSize: 52, fontWeight: 900, lineHeight: 1, letterSpacing: -1, margin: "0 0 6px", textTransform: "uppercase" },
-  sub:          { fontSize: 14, color: "#78716c", margin: "0 0 12px", fontWeight: 600 },
-  barWrap:      { display: "flex", height: 8, borderRadius: 99, overflow: "hidden", gap: 3, marginBottom: 12 },
-  barSeg:       { minWidth: 0, borderRadius: 99, transition: "flex .6s ease, opacity .3s" },
-  teamCountsRow: { display: "flex", gap: 8, marginTop: 2 },
-  teamPill:     { fontSize: 12, fontWeight: 700, color: "#fff", padding: "3px 10px", borderRadius: 99 },
-  fullBadge:    { marginTop: 12, display: "inline-block", background: "#15803d", color: "#bbf7d0", fontSize: 13, fontWeight: 800, letterSpacing: 1, padding: "4px 12px", borderRadius: 6 },
+  titleBar:  { background: "#000000", padding: "18px 20px", display: "flex", alignItems: "center", justifyContent: "center" },
+  titleText: { color: "#ffffff", fontSize: 20, fontWeight: 700, letterSpacing: -.3 },
+  barWrap:   { display: "flex", height: 4, overflow: "hidden" },
+  barSeg:    { minWidth: 0, transition: "flex .5s ease, opacity .3s" },
+  pillsRow:  { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px 8px" },
+  teamCountsRow: { display: "flex", gap: 8 },
+  teamPill:  { display: "inline-flex", alignItems: "center", fontSize: 12, fontWeight: 700, color: "#fff", padding: "4px 12px", borderRadius: 99 },
+  sub:       { fontSize: 13, color: "#6b7280", fontWeight: 500 },
+  fullBadge: { display: "inline-flex", alignItems: "center", gap: 6, background: "#f0fdf4", color: "#15803d", fontSize: 12, fontWeight: 700, padding: "6px 14px", borderRadius: 6, border: "1px solid #bbf7d0" },
 
-  tabBar:    { display: "flex", background: "#1c1917", borderBottom: "1px solid #292524", position: "sticky", top: 0, zIndex: 10 },
-  tabBtn:    { flex: 1, background: "transparent", border: "none", borderBottom: "2px solid transparent", color: "#78716c", fontSize: 14, fontWeight: 700, letterSpacing: .5, padding: "14px 0", cursor: "pointer", fontFamily: "inherit", textTransform: "uppercase", transition: "color .15s" },
-  tabActive: { color: "#ea580c", borderBottomColor: "#ea580c" },
+  tabBar:    { display: "flex", background: "#ffffff", borderBottom: "1px solid #e5e7eb", position: "sticky", top: 0, zIndex: 10 },
+  tabBtn:    { flex: 1, background: "transparent", border: "none", borderBottom: "2px solid transparent", color: "#9ca3af", fontSize: 13, fontWeight: 700, letterSpacing: .5, padding: "14px 0", cursor: "pointer", fontFamily: "inherit", textTransform: "uppercase", transition: "color .15s" },
+  tabActive: { color: "#111827", borderBottomColor: "#111827" },
 
-  main:   { padding: "16px", maxWidth: 500, margin: "0 auto" },
-  hint:   { textAlign: "center", fontSize: 15, color: "#a8a29e", fontWeight: 600, letterSpacing: .5, margin: "10px 0 14px" },
-  banner: { background: "#1c1917", border: "1px solid #292524", borderRadius: 10, padding: "11px 16px", fontSize: 14, color: "#a8a29e", marginBottom: 14, textAlign: "center" },
+  main:   { padding: "16px", maxWidth: 460, margin: "0 auto" },
+  hint:   { textAlign: "center", fontSize: 13, color: "#9ca3af", fontWeight: 500, margin: "10px 0 14px" },
+  banner: { background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 10, padding: "10px 16px", fontSize: 13, color: "#6b7280", marginBottom: 14, textAlign: "center" },
 
-  grid:       { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 },
-  nameCard:   { position: "relative", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "12px 6px", borderRadius: 12, border: "1.5px solid #292524", background: "#1c1917", color: "#fafaf9", minHeight: 70, fontFamily: "inherit", textAlign: "center", gap: 3, transition: "all .18s" },
+  grid:       { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 9 },
+  nameCard:   { position: "relative", display: "flex", flexDirection: "column", alignItems: "flex-start", justifyContent: "center", padding: "12px 10px 10px", borderRadius: 12, border: "1px solid #e5e7eb", background: "#ffffff", color: "#111827", minHeight: 72, fontFamily: "inherit", textAlign: "left", gap: 3, transition: "all .15s" },
   playerName: { fontSize: 13, fontWeight: 700, lineHeight: 1.2 },
-  smallText:  { fontSize: 10, fontWeight: 700 },
-  tapHint:    { fontSize: 10, color: "#57534e", fontStyle: "italic" },
-  youTag:     { position: "absolute", top: 4, right: 6, fontSize: 9, fontWeight: 800, color: "#ea580c", letterSpacing: .5 },
+  smallText:  { fontSize: 10, fontWeight: 600 },
+  tapHint:    { fontSize: 10, color: "#d1d5db", fontStyle: "italic" },
+  youTag:     { position: "absolute", top: 6, right: 7, fontSize: 8, fontWeight: 800, color: "#16a34a", letterSpacing: .5, textTransform: "uppercase" },
 
-  heroCard:    { borderRadius: 18, padding: "26px 20px", textAlign: "center", marginBottom: 18, boxShadow: "0 8px 40px rgba(0,0,0,.5)" },
-  heroEyebrow: { fontSize: 11, letterSpacing: 3, fontWeight: 800, opacity: .7, textTransform: "uppercase" },
-  heroName:    { fontSize: 44, fontWeight: 900, lineHeight: 1, letterSpacing: -1, margin: "4px 0 2px" },
-  heroSub:     { fontSize: 15, marginTop: 8, opacity: .85, fontWeight: 600 },
+  heroCard:    { borderRadius: 14, padding: "20px 18px", textAlign: "left", marginBottom: 16, background: "#ffffff", border: "1px solid #e5e7eb" },
+  heroEyebrow: { fontSize: 10, letterSpacing: 3, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", marginBottom: 4 },
+  heroName:    { fontSize: 36, fontWeight: 900, lineHeight: 1, letterSpacing: -1.5, margin: "0 0 8px" },
+  heroSub:     { fontSize: 14, fontWeight: 600 },
 
-  teamCard:     { borderRadius: 14, border: "1.5px solid", overflow: "hidden", marginBottom: 14, background: "#1c1917" },
-  teamHead:     { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 16px" },
-  teamHeadName: { fontSize: 17, fontWeight: 800, letterSpacing: .5, color: "#fff", textTransform: "uppercase" },
-  teamHeadCount: { fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,.8)", background: "rgba(0,0,0,.25)", padding: "2px 8px", borderRadius: 99 },
-  memberList:   { padding: "6px 0" },
-  memberRow:    { display: "flex", alignItems: "center", gap: 10, padding: "8px 14px", borderRadius: 8, margin: "2px 6px", transition: "background .2s", fontSize: 15 },
-  dot:          { width: 8, height: 8, borderRadius: "50%", flexShrink: 0 },
+  teamCard:      { borderRadius: 14, border: "1px solid #e5e7eb", overflow: "hidden", marginBottom: 12, background: "#ffffff" },
+  teamHead:      { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "11px 16px" },
+  teamHeadName:  { fontSize: 13, fontWeight: 800, letterSpacing: .5, color: "#fff", textTransform: "uppercase" },
+  teamHeadCount: { fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,.9)", background: "rgba(0,0,0,.2)", padding: "2px 8px", borderRadius: 99 },
+  memberList:    { padding: "4px 0 8px" },
+  memberRow:     { display: "flex", alignItems: "center", gap: 10, padding: "7px 14px", margin: "1px 4px", transition: "background .2s", fontSize: 14 },
+  dot:           { width: 7, height: 7, borderRadius: "50%", flexShrink: 0 },
 
-  resetBtn: { marginTop: 14, display: "block", width: "100%", background: "transparent", border: "1px solid #44403c", borderRadius: 8, color: "#78716c", fontSize: 12, fontWeight: 700, letterSpacing: .5, padding: "8px 0", cursor: "pointer", fontFamily: "inherit", textTransform: "uppercase" },
+  resetBtn: { margin: "8px 16px 12px", display: "block", width: "calc(100% - 32px)", background: "transparent", border: "1px solid #e5e7eb", borderRadius: 8, color: "#9ca3af", fontSize: 11, fontWeight: 700, letterSpacing: .5, padding: "9px 0", cursor: "pointer", fontFamily: "inherit", textTransform: "uppercase" },
 };
