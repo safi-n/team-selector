@@ -6,13 +6,13 @@ import { useState, useEffect, useCallback } from "react";
 // ✏️  EDIT THESE 21 NAMES before you deploy
 // ─────────────────────────────────────────────────────────────────────────────
 const PLAYERS = [
-  "Safi",      "Mitch",     "Julie Ann",
-  "Mo",        "Nicolas",   "Noah",
-  "Innocent",  "Jojo",      "Hervé",
+  "Safi",      "Jojo",     "JulieAnna",
+  "Mo",        "Nelson",   "Noah",
+  "Innocent",  "Mitch",      "Hervé",
   "Lily M",    "Hirwa",     "Nshuti",
-  "Timon",     "Ian",       "Mr Dot",
-  "Player 16", "Player 17", "Player 18",
-  "Player 19", "Player 20", "Player 21",
+  "Timon",     "Ian",       "Eddy",
+  "Anthony", "Tj", "Sammy",
+  "The 1135", "Jojo F1", "Jojo F2",
 ];
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -20,7 +20,7 @@ const TEAMS = {
   green:  { name: "Green Team",  hex: "#16a34a", light: "#f0fdf4", dark: "#15803d", emoji: "🟢", glow: "0 0 0 2px #16a34a" },
   orange: { name: "Orange Team", hex: "#ea580c", light: "#fff7ed", dark: "#c2410c", emoji: "🟠", glow: "0 0 0 2px #ea580c" },
   black:  { name: "Black Team",  hex: "#78716c", light: "#f5f5f4", dark: "#44403c", emoji: "⚫", glow: "0 0 0 2px #78716c" },
-  white:  { name: "White Team",  hex: "#64748b", light: "#f8fafc", dark: "#0f172a", emoji: "⚪", glow: "0 0 0 2px #64748b" },
+  white:  { name: "White Team",  hex: "#abc2e1", light: "#f8fafc", dark: "#0f172a", emoji: "⚪", glow: "0 0 0 2px #64748b" },
 };
 
 const MY_KEY = "footy_player_v1";
