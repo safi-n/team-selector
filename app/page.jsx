@@ -6,13 +6,13 @@ import { useState, useEffect, useCallback } from "react";
 // ✏️  EDIT THESE 21 NAMES before you deploy
 // ─────────────────────────────────────────────────────────────────────────────
 const PLAYERS = [
-  "Safi",      "Jojo",     "JulieAnna",
-  "Mo",        "Nelson",   "Noah",
-  "Innocent",  "Mitch",      "Hervé",
+  "Safi",      "Jojo",      "JulieAnna",
+  "Open Spot", "Nelson",    "Noah",
+  "Innocent",  "Mitch",     "Hervé",
   "Lily M",    "Hirwa",     "Nshuti",
-  "Timon",     "Ian",       "Eddy",
-  "Anthony", "Tj", "Sammy",
-  "The 1135", "Jojo F1", "Jojo F2",
+  "Timon",     "Open Spot", "Eddy",
+  "Anthony",   "Ian",       "Sammy HF",
+  "Oluwaseun", "Brain JF",  "Sammy JF",
 ];
 // ─────────────────────────────────────────────────────────────────────────────
 
